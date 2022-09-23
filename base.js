@@ -114,10 +114,14 @@
                         
             void main() {
               vec4 pos = aVertexPosition;
-              vec2 normalizeMousePos = ( uMousePosition / uWidthHeight );
-              normalizeMousePos.y = 1.0 - normalizeMousePos.y;
+              vec2 mousePosition = uMousePosition;
+              mousePosition.y = uWidthHeight.y - mousePosition.y;
+              vec2 normalizeMousePos = ( mousePosition / uWidthHeight );
+              // normalizeMousePos.x = 1.0 - normalizeMousePos.x;
+              // normalizeMousePos.y = 1.0 - normalizeMousePos.y;
               pos.xy += aInstacePosition.xy * 200.0 - 100.0 + 1.0;
-              pos.xy *= distance( aInstacePosition.xy, normalizeMousePos) + 0.8;
+              pos.xy *= 5.0;
+              // pos.xy *= normalizeMousePos + 1.0;
               vTextCoord = max(vec2(0, 0), aVertexPosition.xy);
               gl_Position = uWorldViewProjectionMatrix * pos;
             }
@@ -199,7 +203,11 @@
           gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
           const projectionMatrix = mat4.create();
-          mat4.ortho(projectionMatrix, -100.0, 100.0, -100.0, 100.0, 0.1, 1000.0);
+
+          halfW = gl.canvas.clientWidth / 2.0;
+          halfH = gl.canvas.clientHeight / 2.0;
+          mat4.ortho(projectionMatrix, -halfW, halfW, -halfH, halfH, 0.1, 1000.0);
+          // mat4.perspective(projectionMatrix, 60.0, gl.canvas.clientWidth / gl.canvas.clientHeight, 0.1, 1000.0);
 
           const viewMatrix = mat4.create();
           mat4.lookAt( viewMatrix, [0.0, 0.0, 10.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0] );
