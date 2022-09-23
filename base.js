@@ -114,9 +114,10 @@
                         
             void main() {
               vec4 pos = aVertexPosition;
-              vec2 normalizeMousePos = ( uMousePosition / uWidthHeight ) * 2.0f - 1.0f;
-              pos.xy += aInstacePosition.xy + vec2(1.0);
-              pos.xy *= distance( normalizeMousePos, pos.xy) * 0.01f;
+              vec2 normalizeMousePos = ( uMousePosition / uWidthHeight );
+              normalizeMousePos.y = 1.0 - normalizeMousePos.y;
+              pos.xy += aInstacePosition.xy * 200.0 - 100.0 + 1.0;
+              pos.xy *= distance( aInstacePosition.xy, normalizeMousePos) + 0.8;
               vTextCoord = max(vec2(0, 0), aVertexPosition.xy);
               gl_Position = uWorldViewProjectionMatrix * pos;
             }
@@ -172,9 +173,9 @@
             let it = 0;
             let xx;
             let yy;
-            for( xx = -50; xx < 50; ++xx )
-              for( yy = -50; yy < 50; ++yy ){
-                instaceData.set([xx * 2, yy * 2, 0, 0], it * 4);
+            for( xx = 0.0; xx < 100.0; ++xx )
+              for( yy = 0.0; yy < 100.0; ++yy ){
+                instaceData.set([xx / 100.0, yy / 100.0, 0, 0], it * 4);
                 ++it;
               }
             gl.bufferData(gl.ARRAY_BUFFER, instaceData, gl.DYNAMIC_DRAW);
