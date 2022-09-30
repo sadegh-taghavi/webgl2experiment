@@ -1,15 +1,3 @@
-import * as glMatrix from './lib/gl-matrix/esm/index.js';
-// glMatrix().then(glMatrix => {
-//   // finished downloading Box2D.wasm
-//   console.log(glMatrix);
-// });
-
-import box2DFactory from './lib/liquidfun-wasm/dist/es/Box2D.js';
-box2DFactory().then(box2D => {
-  // finished downloading Box2D.wasm
-  console.log(box2D);
-});
-
 (function () {
     
     var mouseState = {
@@ -214,24 +202,24 @@ box2DFactory().then(box2D => {
   
           gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-          const projectionMatrix = glMatrix.mat4.create();
+          const projectionMatrix = mat4.create();
 
-          const halfW = gl.canvas.clientWidth / 2.0;
-          const halfH = gl.canvas.clientHeight / 2.0;
-          glMatrix.mat4.ortho(projectionMatrix, -halfW, halfW, -halfH, halfH, 0.1, 1000.0);
-          // glMatrix.mat4.perspective(projectionMatrix, 60.0, gl.canvas.clientWidth / gl.canvas.clientHeight, 0.1, 1000.0);
+          halfW = gl.canvas.clientWidth / 2.0;
+          halfH = gl.canvas.clientHeight / 2.0;
+          mat4.ortho(projectionMatrix, -halfW, halfW, -halfH, halfH, 0.1, 1000.0);
+          // mat4.perspective(projectionMatrix, 60.0, gl.canvas.clientWidth / gl.canvas.clientHeight, 0.1, 1000.0);
 
-          const viewMatrix = glMatrix.mat4.create();
-          glMatrix.mat4.lookAt( viewMatrix, [0.0, 0.0, 10.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0] );
+          const viewMatrix = mat4.create();
+          mat4.lookAt( viewMatrix, [0.0, 0.0, 10.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0] );
 
-          const viewProjectionMatrix = glMatrix.mat4.create();
+          const viewProjectionMatrix = mat4.create();
           
-          glMatrix.mat4.multiply( viewProjectionMatrix, projectionMatrix, viewMatrix );
-          const worldMatrix = glMatrix.mat4.create();
+          mat4.multiply( viewProjectionMatrix, projectionMatrix, viewMatrix );
+          const worldMatrix = mat4.create();
 
-          const worldViewProjectionMatrix = glMatrix.mat4.create();
+          const worldViewProjectionMatrix = mat4.create();
 
-          glMatrix.mat4.multiply( worldViewProjectionMatrix, viewProjectionMatrix, worldMatrix );
+          mat4.multiply( worldViewProjectionMatrix, viewProjectionMatrix, worldMatrix );
   
           {
               gl.enableVertexAttribArray( programInfo.attribLocations.vertexPosition );
