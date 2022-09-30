@@ -4,8 +4,8 @@ import * as glMatrix from './lib/gl-matrix/esm/index.js';
 //   console.log(glMatrix);
 // });
 
-import box2DFactory from './lib/liquidfun-wasm/dist/es/Box2D.js';
-box2DFactory().then(box2D => {
+import box2D from './lib/liquidfun-wasm/dist/es/Box2D.js';
+box2D().then(box2D => {
   // finished downloading Box2D.wasm
   console.log(box2D);
 });
@@ -134,8 +134,8 @@ box2DFactory().then(box2D => {
               // normalizeMousePos.y = 1.0 - normalizeMousePos.y;
               pos.xy *=  vec2(aInstacePosition.w * 15.0) + 5.0;
               pos.xy += ( aInstacePosition.xy + 
-              mix(aInstacePosition.xy, aInstacePosition.zw, vec2( cos( uTime * 1000.0 * (aInstacePosition.x + 1.0) ), 
-              sin( uTime * 1000.0 * (aInstacePosition.y + 1.0) ) ) * 0.1 ) )  
+              mix(aInstacePosition.xy, aInstacePosition.zw, vec2( cos( uTime * 20.0 * (aInstacePosition.x + 1.0) ), 
+              sin( uTime * 20.0 * (aInstacePosition.y + 1.0) ) ) * 0.1 ) )  
                 * uWidthHeight - uWidthHeight * 0.5;
               //pos.xy = mix(vec2(0.0), pos.xy, aInstacePosition.xy * uTime * 10.0);
               // pos.xy *= normalizeMousePos + 1.0;
@@ -151,7 +151,10 @@ box2DFactory().then(box2D => {
             out vec4 oColor;
             
             void main() {
-              oColor = vec4(vTextCoord, 0.0, 1.0);
+              float r = 1.0 - smoothstep(0.45, 0.5, length(vTextCoord - vec2(0.5)));
+              if( r < 0.1 )
+                discard;
+              oColor = vec4(vTextCoord, r , r );
             }
         `;
         const shaderProgram = initShaderProgram(vsSource, fsSource);
@@ -212,6 +215,8 @@ box2DFactory().then(box2D => {
           gl.clearColor(0.0, 0.5, 1.0, 1.0);
           gl.clearDepth(1.0);
           gl.enable(gl.DEPTH_TEST);
+          gl.enable(gl.BLEND);
+          gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
           gl.depthFunc(gl.LEQUAL);
           gl.disable(gl.CULL_FACE);
   
