@@ -122,6 +122,7 @@ box2DFactory().then(box2D => {
             uniform mat4 uWorldViewProjectionMatrix;
             uniform vec2 uMousePosition;
             uniform vec2 uWidthHeight;
+            uniform float uTime;
             
                         
             void main() {
@@ -131,8 +132,12 @@ box2DFactory().then(box2D => {
               vec2 normalizeMousePos = ( mousePosition / uWidthHeight );
               // normalizeMousePos.x = 1.0 - normalizeMousePos.x;
               // normalizeMousePos.y = 1.0 - normalizeMousePos.y;
-              pos.xy += aInstacePosition.xy * 200.0 - 100.0 + 1.0;
-              pos.xy *= 5.0;
+              pos.xy *=  vec2(aInstacePosition.w * 15.0) + 5.0;
+              pos.xy += ( aInstacePosition.xy + 
+              mix(aInstacePosition.xy, aInstacePosition.zw, vec2( cos( uTime * 1000.0 * (aInstacePosition.x + 1.0) ), 
+              sin( uTime * 1000.0 * (aInstacePosition.y + 1.0) ) ) * 0.1 ) )  
+                * uWidthHeight - uWidthHeight * 0.5;
+              //pos.xy = mix(vec2(0.0), pos.xy, aInstacePosition.xy * uTime * 10.0);
               // pos.xy *= normalizeMousePos + 1.0;
               vTextCoord = max(vec2(0, 0), aVertexPosition.xy);
               gl_Position = uWorldViewProjectionMatrix * pos;
@@ -160,6 +165,7 @@ box2DFactory().then(box2D => {
               worldViewProjectionMatrix: gl.getUniformLocation(shaderProgram, 'uWorldViewProjectionMatrix'),
               mousePosition: gl.getUniformLocation(shaderProgram, 'uMousePosition'),
               widthHeight: gl.getUniformLocation(shaderProgram, 'uWidthHeight'),
+              time: gl.getUniformLocation(shaderProgram, 'uTime')
             },
         };
         
@@ -186,14 +192,11 @@ box2DFactory().then(box2D => {
             const instanceBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, instanceBuffer);
             const instaceData = new Float32Array(instanceCount * 4);
-            let it = 0;
-            let xx;
-            let yy;
-            for( xx = 0.0; xx < 100.0; ++xx )
-              for( yy = 0.0; yy < 100.0; ++yy ){
-                instaceData.set([xx / 100.0, yy / 100.0, 0, 0], it * 4);
-                ++it;
-              }
+            let it;
+            for( it = 0.0; it < instanceCount; ++it ) {
+              instaceData.set([Math.random() * 1.0, Math.random() * 1.0, Math.random() * 1.0, Math.random() * 1.0], it * 4);
+              ++it;
+            }
             gl.bufferData(gl.ARRAY_BUFFER, instaceData, gl.DYNAMIC_DRAW);
             return {
               position: positionBuffer,
@@ -203,7 +206,7 @@ box2DFactory().then(box2D => {
             };
         }          
         const buffers = initBuffers();
-        
+        var time = 0.0
         function drawScene(deltaTime ) {
           gl.viewport(0, 0, gl.canvas.clientWidth, gl.canvas.clientHeight);
           gl.clearColor(0.0, 0.5, 1.0, 1.0);
@@ -267,8 +270,6 @@ box2DFactory().then(box2D => {
                 offset);
             gl.vertexAttribDivisor(programInfo.attribLocations.instancePosition, 1);
            
-            //  buffers.instancesData.set([20, 20, 0, 0], 0);
-             
              gl.bufferSubData(gl.ARRAY_BUFFER, 0, buffers.instancesData);
         }
         
@@ -278,7 +279,9 @@ box2DFactory().then(box2D => {
   
           gl.uniformMatrix4fv( programInfo.uniformLocations.worldViewProjectionMatrix, false, worldViewProjectionMatrix); 
           gl.uniform2f( programInfo.uniformLocations.mousePosition, mouseState.x, mouseState.y); 
-          gl.uniform2f( programInfo.uniformLocations.widthHeight, gl.canvas.clientWidth, gl.canvas.clientHeight); 
+          gl.uniform2f( programInfo.uniformLocations.widthHeight, gl.canvas.clientWidth, gl.canvas.clientHeight);
+          time += 0.00001 * deltaTime;
+          gl.uniform1f( programInfo.uniformLocations.time, time );
           
           {
             
@@ -289,7 +292,7 @@ box2DFactory().then(box2D => {
           }  
         }
 
-        let then = 0;
+        let then = Date.now();
         let now = 0;
 
         function draw() {
@@ -298,8 +301,7 @@ box2DFactory().then(box2D => {
           then = now;
       
           drawScene(deltaTime);
-          //console.log(Math.floor(1000.0 / deltaTime));
-      
+          
           requestAnimationFrame(draw);
         }
         requestAnimationFrame(draw);
