@@ -132,10 +132,11 @@ box2D().then(box2D => {
               vec2 normalizeMousePos = ( mousePosition / uWidthHeight );
               // normalizeMousePos.x = 1.0 - normalizeMousePos.x;
               // normalizeMousePos.y = 1.0 - normalizeMousePos.y;
-              pos.xy *=  vec2(aInstacePosition.w * 15.0) + 5.0;
-              pos.xy += ( aInstacePosition.xy + 
-              mix(aInstacePosition.xy, aInstacePosition.zw, vec2( cos( uTime * 20.0 * (aInstacePosition.x + 1.0) ), 
-              sin( uTime * 20.0 * (aInstacePosition.y + 1.0) ) ) * 0.1 ) )  
+              pos.xy *=  vec2(aInstacePosition.w * 15.0) + 3.0;
+              pos.xy += 
+              mix(aInstacePosition.xy,  aInstacePosition.zw, vec2( 
+                cos( uTime * 100.0 * (aInstacePosition.x + 1.0) ), 
+                sin( uTime * 100.0 * (aInstacePosition.w + 1.0) ) ) * 0.1 ) 
                 * uWidthHeight - uWidthHeight * 0.5;
               //pos.xy = mix(vec2(0.0), pos.xy, aInstacePosition.xy * uTime * 10.0);
               // pos.xy *= normalizeMousePos + 1.0;
@@ -172,7 +173,7 @@ box2D().then(box2D => {
             },
         };
         
-        const instanceCount = 10000;
+        const instanceCount = 100000;
 
         function initBuffers() {
             const positionBuffer = gl.createBuffer();
@@ -218,7 +219,7 @@ box2D().then(box2D => {
           gl.enable(gl.BLEND);
           gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
           gl.depthFunc(gl.LEQUAL);
-          gl.disable(gl.CULL_FACE);
+          gl.enable(gl.CULL_FACE);
   
           gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
