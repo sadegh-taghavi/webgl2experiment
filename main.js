@@ -1,16 +1,15 @@
 import * as glMatrix from './lib/gl-matrix/esm/index.js';
-// glMatrix().then(glMatrix => {
-//   // finished downloading Box2D.wasm
-//   console.log(glMatrix);
-// });
+import Box2DFactory from './lib/liquidfun-wasm/dist/es/entry.js';
+/**
+ * Make a copy of the Box2DFactory variable (this is a workaround to change its type).
+ * Tell our IDE that the typings for this variable can be found inside node_modules/box2d-wasm
+ * @type {import('box2d-wasm')}
+ */
+const Box2DFactory_ = Box2DFactory;
+Box2DFactory_().then(box2D => {
+  // console.log(box2D);
 
-import box2D from './lib/liquidfun-wasm/dist/es/Box2D.js';
-box2D().then(box2D => {
-  // finished downloading Box2D.wasm
-  console.log(box2D);
-});
-
-(function () {
+  (function () {
     
     var mouseState = {
       x:-1, 
@@ -175,6 +174,21 @@ box2D().then(box2D => {
         
         const instanceCount = 100000;
 
+        function initPhysic() {
+          var gravity = new box2D.b2Vec2(0.0, -10.0);
+    
+          var world = new box2D.b2World(gravity);
+    
+          var bd_ground = new box2D.b2BodyDef();
+          var ground = world.CreateBody(bd_ground);
+    
+          var shape0 = new box2D.b2EdgeShape();
+          shape0.SetOneSided(new box2D.b2Vec2(-40.0, -6.0), new box2D.b2Vec2(40.0, -6.0));
+          ground.CreateFixture(shape0, 0.0);
+      }
+    
+      initPhysic();
+
         function initBuffers() {
             const positionBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -228,7 +242,7 @@ box2D().then(box2D => {
           const halfW = gl.canvas.clientWidth / 2.0;
           const halfH = gl.canvas.clientHeight / 2.0;
           glMatrix.mat4.ortho(projectionMatrix, -halfW, halfW, -halfH, halfH, 0.1, 1000.0);
-          // glMatrix.mat4.perspective(projectionMatrix, 60.0, gl.canvas.clientWidth / gl.canvas.clientHeight, 0.1, 1000.0);
+          //glMatrix.mat4.perspective(projectionMatrix, 60.0, gl.canvas.clientWidth / gl.canvas.clientHeight, 0.1, 1000.0);
 
           const viewMatrix = glMatrix.mat4.create();
           glMatrix.mat4.lookAt( viewMatrix, [0.0, 0.0, 10.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0] );
@@ -313,3 +327,6 @@ box2D().then(box2D => {
         requestAnimationFrame(draw);
     }
   })();
+ 
+});
+
