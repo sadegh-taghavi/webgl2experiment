@@ -9,6 +9,54 @@ const Box2DFactory_ = Box2DFactory;
 Box2DFactory_().then(box2D => {
   // console.log(box2D);
 
+  class SOD {
+    #xp
+    #y
+    #yd
+    #_w
+    #_z
+    #_d
+    #k1
+    #k2
+    #k3
+    constructor(f, z, r, x0) {
+
+      this.#_w = 2.0 * Math.PI * f;
+      this.#_z = z;
+      this.#_d = this.#_w * Math.sqrt( Math.abs( z * z - 1.0 ) );
+      this.#k1 = z / ( Math.PI * f );
+      this.#k2 = 1.0 / ( this.#_w * this.#_w );
+      this.#k3 = r * z / this.#_w;
+
+      this.#xp = x0;
+      this.#y = x0;
+      this.#yd = 0;
+    }
+
+    update(T, x, xd) {
+      if( xd == null ) {
+        xd = ( x - this.#xp ) / T;
+        this.#xp = x;
+      }
+      let k1_stable
+      let k2_stable
+      if(this.#_w * T < this.#_z) {
+        k1_stable = this.#k1;
+        k2_stable = Math.max( this.#k2, T * T / 2.0 + T * this.#k1 / 2.0, T * this.#k1);
+      }else {
+        let t1 = Math.exp( -this.#_z * this.#_w * T );
+        let alpha = 2.0 * t1 * (this.#_z <= 1.0 ? Math.cos(T * this.#_d) : Math.cosh( T * this.#_d));
+        let beta = t1 * t1;
+        let t2 = T / ( 1.0 + beta - alpha );
+        k1_stable = (1.0 - beta) * t2;
+        k2_stable = T * t2;
+      }
+      this.#y = this.#y + T * this.#yd;
+      this.#yd = this.#yd + T * ( x + this.#k3 * xd - this.#y - this.#k1 * this.#yd ) / k2_stable;
+      return this.#y
+    }
+  }
+  
   (function () {
     
     var mouseState = {
